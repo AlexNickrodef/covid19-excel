@@ -119,7 +119,6 @@ if __name__ == '__main__':
     # тут будут наши данные
     data = []
 
-    # TODO: считать данные
     country = input("Enter country from counties.txt:")
 
     date_entry = input('Enter date (d.m.Y) starts:')
