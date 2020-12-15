@@ -6,8 +6,8 @@ from openpyxl.chart.axis import DateAxis
 
 # Подготовка запроса к источнику данных
 def prepare(endpoint, country, date_from, date_to):
-    date_from = date_from.strftime("%Y-%#m-%#d")
-    date_to = date_to.strftime("%Y-%#m-%#d")
+    date_from = date_from.strftime("%Y-%m-%d")
+    date_to = date_to.strftime("%Y-%m-%d")
     return endpoint.replace(':country', country).replace(':date_from', date_from).replace(':date_to', date_to)
 
 def makeReport(data):
@@ -39,6 +39,9 @@ def makeReport(data):
     date_from = list(data['dates'].keys())[0]
     date_to = list(data['dates'].keys())[-1]
 
+    # Указываем что даты лежат в col1
+    dates = Reference(ws, min_col=1, min_row=1, max_row=dates_count+1)
+
     # График 1
     data = Reference(ws, min_col=2, max_col=3, min_row=1, max_row=dates_count+1)
     chart = LineChart()
@@ -46,59 +49,47 @@ def makeReport(data):
     chart.style = 15
     chart.y_axis.title = "count"
     chart.y_axis.crossAx = 100
-    chart.x_axis = DateAxis(crossAx=100)
-    chart.x_axis.title = "by days"
-    chart.x_axis.number_format = 'd-mmm'
-    chart.x_axis.majorTimeUnit = "days"
     chart.add_data(data, titles_from_data=True)
+    chart.set_categories(dates)
 
     # Добавляем График 1 отчет
     ws.add_chart(chart, "K1")
 
     # График 2
-    data = Reference(ws, min_col=3, max_col=4, min_row=1, max_row=dates_count+1)
+    data = Reference(ws, min_col=4, max_col=5, min_row=1, max_row=dates_count+1)
     chart = LineChart()
     chart.title = "Active cases in " + country + " from " + date_from + " to " + date_to
     chart.style = 14
     chart.y_axis.title = "count"
     chart.y_axis.crossAx = 100
-    chart.x_axis = DateAxis(crossAx=100)
-    chart.x_axis.title = "by days"
-    chart.x_axis.number_format = 'd-mmm'
-    chart.x_axis.majorTimeUnit = "days"
     chart.add_data(data, titles_from_data=True)
+    chart.set_categories(dates)
 
     # Добавляем График 2 отчет
     ws.add_chart(chart, "K15")
 
     # График 3
-    data = Reference(ws, min_col=5, max_col=6, min_row=1, max_row=dates_count+1)
+    data = Reference(ws, min_col=6, max_col=7, min_row=1, max_row=dates_count+1)
     chart = LineChart()
     chart.title = "Recovered cases " + country + " from " + date_from + " to " + date_to
     chart.style = 13
     chart.y_axis.title = "count"
     chart.y_axis.crossAx = 100
-    chart.x_axis = DateAxis(crossAx=100)
-    chart.x_axis.title = "by days"
-    chart.x_axis.number_format = 'd-mmm'
-    chart.x_axis.majorTimeUnit = "days"
     chart.add_data(data, titles_from_data=True)
+    chart.set_categories(dates)
 
     # Добавляем График 3 отчет
     ws.add_chart(chart, "T1")
 
     # График 4
-    data = Reference(ws, min_col=6, max_col=7, min_row=1, max_row=dates_count+1)
+    data = Reference(ws, min_col=8, max_col=9, min_row=1, max_row=dates_count+1)
     chart = LineChart()
     chart.title = "Death cases in " + country + " from " + date_from + " to " + date_to
     chart.style = 12
     chart.y_axis.title = "count"
     chart.y_axis.crossAx = 100
-    chart.x_axis = DateAxis(crossAx=100)
-    chart.x_axis.title = "by days"
-    chart.x_axis.number_format = 'd-mmm'
-    chart.x_axis.majorTimeUnit = "days"
     chart.add_data(data, titles_from_data=True)
+    chart.set_categories(dates)
 
     # Добавляем График 4 отчет
     ws.add_chart(chart, "T15")
