@@ -2,7 +2,6 @@ import requests
 from openpyxl import Workbook
 from openpyxl.chart import LineChart, Reference
 import datetime
-from openpyxl.chart.axis import DateAxis
 
 
 # Подготовка запроса к источнику данных
@@ -15,13 +14,11 @@ def prepare(country, date_from, date_to):
     return query.replace(':country', country).replace(':date_from', str(date_from)).replace(':date_to', str(date_to))
 
 
-def make_report(data):
+def make_report(data, country):
 
     # Создаем workbook excel и забираем активный worksheet
     wb = Workbook()
     ws = wb.active
-
-    country = ''
 
     rows = [('Date:', 'today confirmed cases',
              'new confirmed cases:', 'today active cases:',
@@ -29,12 +26,6 @@ def make_report(data):
              'new recovered cases:', 'today deaths:', 'new deaths:',)]
 
     for date in data['dates']:
-        if data['dates'][date]['countries']:
-            country = list(data['dates'][date]['countries'].keys())[0]
-        elif country == '':
-            print('Указаная страна не найдена')
-            exit()
-
         statistic = data['dates'][date]['countries'][country]
         rows.append((date, statistic['today_confirmed'], statistic['today_new_confirmed'],
                      statistic['today_open_cases'], statistic['today_new_open_cases'],
@@ -113,15 +104,23 @@ def make_report(data):
     return report
 
 
-def date_input_handler(input_date):
+def date_input_handler(input_date_from, input_date_to):
+    # преобразование строк в даты
 
-    day, month, year = map(int, input_date.split('.'))
-    date = datetime.date(year, month, day)
+    day, month, year = map(int, input_date_from.split('.'))
+    date_from = datetime.date(year, month, day)
 
-    if year < 2000:
+    day, month, year = map(int, input_date_to.split('.'))
+    date_to = datetime.date(year, month, day)
+
+    # проверка введенных данных
+    if date_from > date_to:
         raise ValueError
 
-    return date
+    if date_from.year < 2000 or date_to.year < 2000:
+        raise ValueError
+
+    return date_from, date_to
 
 
 def country_is_in_file(country_for_check):
@@ -157,19 +156,21 @@ if __name__ == '__main__':
         date_to = input('Till (ex. 03.04.2020): ')
         try:
             # преобразуем введенные строки в даты
-            date_from = date_input_handler(date_from)
-            date_to = date_input_handler(date_to)
-            if date_from > date_to:
-                raise ValueError
+            date_from, date_to = date_input_handler(date_from, date_to)
+
+            # выйти из цикла, если нет ошибок
             break
         except ValueError:
             # если возникла ошибка, повторить ввод
             print('Incorrect input. Please, try again.')
             continue
 
+    # Выводим сообщение о запрошенном отчёте
+    print('-' * 20)
     print(f'Preparing report for country: {country.capitalize()}')
     print('From:', date_from.strftime("%A %d, %B %Y"))
     print('Till:', date_to.strftime("%A %d, %B %Y"))
+    print('-' * 20)
 
     try:
         # Подставляем данные в запрос
@@ -180,7 +181,7 @@ if __name__ == '__main__':
 
         if response.status_code != 200:
             # Если код ответа не 200, что-то не так
-            print("Resource responded with code: ", response.status_code)
+            print("Something went wrong. Resource responded with code: ", response.status_code)
             exit()
 
         # Если ок - обрабатываем json
@@ -190,6 +191,6 @@ if __name__ == '__main__':
         exit()
 
     # Создаем отчет excel
-    filename = make_report(data)
+    filename = make_report(data, country.capitalize())
 
     print("Report is generated and saved as: ", filename)
