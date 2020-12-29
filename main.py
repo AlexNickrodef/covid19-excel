@@ -6,14 +6,13 @@ from openpyxl.chart.axis import DateAxis
 
 
 # Подготовка запроса к источнику данных
-def prepare(endpoint, country, date_from, date_to):
-    date_from = date_from.strftime("%Y-%m-%d")
-    date_to = date_to.strftime("%Y-%m-%d")
+def prepare(country, date_from, date_to):
+    # подставляем полученные данные в запрос
 
-    print(date_from)
-    print(date_to)
+    # ex.: https://api.covid19tracking.narrativa.com/api/country/tajikistan?date_from=2020-12-1&date_to=2020-12-10
+    query = 'https://api.covid19tracking.narrativa.com/api/country/:country?date_from=:date_from&date_to=:date_to'
 
-    return endpoint.replace(':country', country).replace(':date_from', date_from).replace(':date_to', date_to)
+    return query.replace(':country', country).replace(':date_from', str(date_from)).replace(':date_to', str(date_to))
 
 
 def make_report(data):
@@ -114,6 +113,17 @@ def make_report(data):
     return report
 
 
+def date_input_handler(input_date):
+
+    day, month, year = map(int, input_date.split('.'))
+    date = datetime.date(year, month, day)
+
+    if year < 2000:
+        raise ValueError
+
+    return date
+
+
 def country_is_in_file(country_for_check):
     # Проверяем наличие страны в файле countries.txt
 
@@ -129,9 +139,6 @@ def country_is_in_file(country_for_check):
 
 if __name__ == '__main__':
 
-    # ex.: https://api.covid19tracking.narrativa.com/api/country/tajikistan?date_from=2020-12-1&date_to=2020-12-10
-    endpoint = 'https://api.covid19tracking.narrativa.com/api/country/:country?date_from=:date_from&date_to=:date_to'
-
     # тут будут наши данные
     data = []
 
@@ -145,19 +152,28 @@ if __name__ == '__main__':
 
     print("Enter date range. Example: from 01.01.2020 till 12.12.2020")
 
-    date_entry = input('From (ex. 01.10.2020): ')
-    day, month, year = map(int, date_entry.split('.'))
-    date_from = datetime.date(year, month, day)
+    while True:
+        date_from = input('From (ex. 01.02.2020): ')
+        date_to = input('Till (ex. 03.04.2020): ')
+        try:
+            # преобразуем введенные строки в даты
+            date_from = date_input_handler(date_from)
+            date_to = date_input_handler(date_to)
+            if date_from > date_to:
+                raise ValueError
+            break
+        except ValueError:
+            # если возникла ошибка, повторить ввод
+            print('Incorrect input. Please, try again.')
+            continue
 
-    date_entry = input('Till (ex. 01.02.2020): ')
-    day, month, year = map(int, date_entry.split('.'))
-    date_to = datetime.date(year, month, day)
-
-    print('Processing..')
+    print(f'Preparing report for country: {country.capitalize()}')
+    print('From:', date_from.strftime("%A %d, %B %Y"))
+    print('Till:', date_to.strftime("%A %d, %B %Y"))
 
     try:
         # Подставляем данные в запрос
-        endpoint = prepare(endpoint, country, date_from, date_to)
+        endpoint = prepare(country, date_from, date_to)
 
         # Пытаемся сделать запрос на API postman
         response = requests.get(endpoint)
@@ -176,4 +192,4 @@ if __name__ == '__main__':
     # Создаем отчет excel
     filename = make_report(data)
 
-    print("Report is generated and saved by:", filename)
+    print("Report is generated and saved as: ", filename)
