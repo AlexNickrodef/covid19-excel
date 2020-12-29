@@ -4,13 +4,15 @@ from openpyxl.chart import LineChart, Reference
 import datetime
 from openpyxl.chart.axis import DateAxis
 
+
 # Подготовка запроса к источнику данных
 def prepare(endpoint, country, date_from, date_to):
     date_from = date_from.strftime("%Y-%m-%d")
     date_to = date_to.strftime("%Y-%m-%d")
     return endpoint.replace(':country', country).replace(':date_from', date_from).replace(':date_to', date_to)
 
-def makeReport(data):
+
+def make_report(data):
 
     # Создаем workbook excel и забираем активный worksheet
     wb = Workbook()
@@ -18,13 +20,15 @@ def makeReport(data):
 
     country = ''
 
-    rows = []
-    rows.append(('Date:', 'today confirmed cases', 'new confirmed cases:', 'today active cases:', 'new active cases:', 'today recovered cases:', 'new recovered cases:', 'today deaths:', 'new deaths:',))
+    rows = [('Date:', 'today confirmed cases',
+             'new confirmed cases:', 'today active cases:',
+             'new active cases:', 'today recovered cases:',
+             'new recovered cases:', 'today deaths:', 'new deaths:',)]
 
     for date in data['dates']:
-        if(data['dates'][date]['countries'] and country == ''):
+        if data['dates'][date]['countries']:
             country = list(data['dates'][date]['countries'].keys())[0]
-        elif (country == ''):
+        elif country == '':
             print('Указаная страна не найдена')
             exit()
 
@@ -102,6 +106,7 @@ def makeReport(data):
 
     return report
 
+
 if __name__ == '__main__':
 
     # ex.: https://api.covid19tracking.narrativa.com/api/country/tajikistan?date_from=2020-12-1&date_to=2020-12-10
@@ -141,6 +146,6 @@ if __name__ == '__main__':
         exit()
 
     # Создаем отчет excel
-    filename = makeReport(data)
+    filename = make_report(data)
 
     print("Report is generated and saved by:", filename)
