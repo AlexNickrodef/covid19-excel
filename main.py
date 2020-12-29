@@ -9,6 +9,10 @@ from openpyxl.chart.axis import DateAxis
 def prepare(endpoint, country, date_from, date_to):
     date_from = date_from.strftime("%Y-%m-%d")
     date_to = date_to.strftime("%Y-%m-%d")
+
+    print(date_from)
+    print(date_to)
+
     return endpoint.replace(':country', country).replace(':date_from', date_from).replace(':date_to', date_to)
 
 
@@ -33,7 +37,10 @@ def make_report(data):
             exit()
 
         statistic = data['dates'][date]['countries'][country]
-        rows.append((date, statistic['today_confirmed'], statistic['today_new_confirmed'], statistic['today_open_cases'], statistic['today_new_open_cases'], statistic['today_recovered'], statistic['today_new_recovered'], statistic['today_deaths'], statistic['today_new_deaths']))
+        rows.append((date, statistic['today_confirmed'], statistic['today_new_confirmed'],
+                     statistic['today_open_cases'], statistic['today_new_open_cases'],
+                     statistic['today_recovered'], statistic['today_new_recovered'],
+                     statistic['today_deaths'], statistic['today_new_deaths']))
 
     for row in rows:
         ws.append(row)
@@ -107,6 +114,19 @@ def make_report(data):
     return report
 
 
+def country_is_in_file(country_for_check):
+    # Проверяем наличие страны в файле countries.txt
+
+    with open("countries.txt", "r") as countries_file:
+        countries = countries_file.readlines()
+        if (country_for_check.lower() + "\n") not in countries:
+            # страна не найдена
+            return False
+        else:
+            # страна найдена
+            return True
+
+
 if __name__ == '__main__':
 
     # ex.: https://api.covid19tracking.narrativa.com/api/country/tajikistan?date_from=2020-12-1&date_to=2020-12-10
@@ -115,13 +135,21 @@ if __name__ == '__main__':
     # тут будут наши данные
     data = []
 
-    country = input("Enter country from counties.txt:")
+    while True:
+        country = input("Enter country from countries.txt: ")
+        if country_is_in_file(country):
+            break
+        else:
+            print('Country not found. Try again')
+            continue
 
-    date_entry = input('Enter date (d.m.Y) starts:')
+    print("Enter date range. Example: from 01.01.2020 till 12.12.2020")
+
+    date_entry = input('From (ex. 01.10.2020): ')
     day, month, year = map(int, date_entry.split('.'))
     date_from = datetime.date(year, month, day)
 
-    date_entry = input('Enter date (d.m.Y) ends:')
+    date_entry = input('Till (ex. 01.02.2020): ')
     day, month, year = map(int, date_entry.split('.'))
     date_to = datetime.date(year, month, day)
 
@@ -136,7 +164,7 @@ if __name__ == '__main__':
 
         if response.status_code != 200:
             # Если код ответа не 200, что-то не так
-            print("Resource respone by code: ", response.status_code)
+            print("Resource responded with code: ", response.status_code)
             exit()
 
         # Если ок - обрабатываем json
