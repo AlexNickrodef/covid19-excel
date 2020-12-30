@@ -14,6 +14,7 @@ body{
 .box{
   width: 350px;
   padding: 40px;
+  font-family: Poppins, sans-serif;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -21,6 +22,15 @@ body{
   transform: translate(-50%,-50%);
   background: black;
   text-align: center;
+}
+
+.message{
+  color: #2ecc71;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  text-decoration: none;
 }
 
 .box h1{

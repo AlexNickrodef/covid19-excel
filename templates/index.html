@@ -16,9 +16,17 @@
 
   <form class="box" method="POST">
 
-    <input type="text" id="country" name="country" placeholder="Country"/>
-    <input type="text" id="date_from" name="date_from" placeholder="From:"/>
-    <input type="text" id="date_to" name="date_to" placeholder="To:"/>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <p class="message">{{msg}}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <input type="text" id="country" name="country" placeholder="Country" value="{{ country }}"/>
+    <input type="text" id="date_from" name="date_from" placeholder="From:" value="{{ date_from }}"/>
+    <input type="text" id="date_to" name="date_to" placeholder="To:" value="{{ date_to }}"/>
 
     <script>
     window.addEventListener("load", function(){
