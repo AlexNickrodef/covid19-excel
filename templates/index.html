@@ -16,6 +16,8 @@
 
   <form class="box" method="POST">
 
+    <h3>Get <span style="color: red">COVID-19</span> report</h3>
+
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for msg in messages %}
@@ -27,6 +29,11 @@
     <input type="text" id="country" name="country" placeholder="Country" value="{{ country }}"/>
     <input type="text" id="date_from" name="date_from" placeholder="From:" value="{{ date_from }}"/>
     <input type="text" id="date_to" name="date_to" placeholder="To:" value="{{ date_to }}"/>
+
+    <div class="checkbox">
+      <input class="custom-checkbox" type="checkbox" id="include_charts" name="include_charts">
+      <label for="include_charts" class="message" style="color: white">Include charts</label>
+    </div>
 
     <script>
     window.addEventListener("load", function(){

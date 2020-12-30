@@ -14,7 +14,7 @@ def prepare(country, date_from, date_to):
     return query.replace(':country', country).replace(':date_from', str(date_from)).replace(':date_to', str(date_to))
 
 
-def make_report(data, country):
+def make_report(data, country, include_charts):
 
     # Создаем workbook excel и забираем активный worksheet
     wb = Workbook()
@@ -35,65 +35,66 @@ def make_report(data, country):
     for row in rows:
         ws.append(row)
 
-    # Формируем графики:
-    dates_count = len(list(data['dates'].keys()))
-    date_from = list(data['dates'].keys())[0]
-    date_to = list(data['dates'].keys())[-1]
+    if include_charts:
+        # Формируем графики:
+        dates_count = len(list(data['dates'].keys()))
+        date_from = list(data['dates'].keys())[0]
+        date_to = list(data['dates'].keys())[-1]
 
-    # Указываем что даты лежат в col1
-    dates = Reference(ws, min_col=1, min_row=1, max_row=dates_count+1)
+        # Указываем что даты лежат в col1
+        dates = Reference(ws, min_col=1, min_row=1, max_row=dates_count+1)
 
-    # График 1
-    data = Reference(ws, min_col=2, max_col=3, min_row=1, max_row=dates_count+1)
-    chart = LineChart()
-    chart.title = "Confirmed cases in " + country + " from " + date_from + " to " + date_to
-    chart.style = 15
-    chart.y_axis.title = "count"
-    chart.y_axis.crossAx = 100
-    chart.add_data(data, titles_from_data=True)
-    chart.set_categories(dates)
+        # График 1
+        data = Reference(ws, min_col=2, max_col=3, min_row=1, max_row=dates_count+1)
+        chart = LineChart()
+        chart.title = "Confirmed cases in " + country + " from " + date_from + " to " + date_to
+        chart.style = 15
+        chart.y_axis.title = "count"
+        chart.y_axis.crossAx = 100
+        chart.add_data(data, titles_from_data=True)
+        chart.set_categories(dates)
 
-    # Добавляем График 1 отчет
-    ws.add_chart(chart, "K1")
+        # Добавляем График 1 отчет
+        ws.add_chart(chart, "K1")
 
-    # График 2
-    data = Reference(ws, min_col=4, max_col=5, min_row=1, max_row=dates_count+1)
-    chart = LineChart()
-    chart.title = "Active cases in " + country + " from " + date_from + " to " + date_to
-    chart.style = 14
-    chart.y_axis.title = "count"
-    chart.y_axis.crossAx = 100
-    chart.add_data(data, titles_from_data=True)
-    chart.set_categories(dates)
+        # График 2
+        data = Reference(ws, min_col=4, max_col=5, min_row=1, max_row=dates_count+1)
+        chart = LineChart()
+        chart.title = "Active cases in " + country + " from " + date_from + " to " + date_to
+        chart.style = 14
+        chart.y_axis.title = "count"
+        chart.y_axis.crossAx = 100
+        chart.add_data(data, titles_from_data=True)
+        chart.set_categories(dates)
 
-    # Добавляем График 2 отчет
-    ws.add_chart(chart, "K15")
+        # Добавляем График 2 отчет
+        ws.add_chart(chart, "K15")
 
-    # График 3
-    data = Reference(ws, min_col=6, max_col=7, min_row=1, max_row=dates_count+1)
-    chart = LineChart()
-    chart.title = "Recovered cases " + country + " from " + date_from + " to " + date_to
-    chart.style = 13
-    chart.y_axis.title = "count"
-    chart.y_axis.crossAx = 100
-    chart.add_data(data, titles_from_data=True)
-    chart.set_categories(dates)
+        # График 3
+        data = Reference(ws, min_col=6, max_col=7, min_row=1, max_row=dates_count+1)
+        chart = LineChart()
+        chart.title = "Recovered cases " + country + " from " + date_from + " to " + date_to
+        chart.style = 13
+        chart.y_axis.title = "count"
+        chart.y_axis.crossAx = 100
+        chart.add_data(data, titles_from_data=True)
+        chart.set_categories(dates)
 
-    # Добавляем График 3 отчет
-    ws.add_chart(chart, "T1")
+        # Добавляем График 3 отчет
+        ws.add_chart(chart, "T1")
 
-    # График 4
-    data = Reference(ws, min_col=8, max_col=9, min_row=1, max_row=dates_count+1)
-    chart = LineChart()
-    chart.title = "Death cases in " + country + " from " + date_from + " to " + date_to
-    chart.style = 12
-    chart.y_axis.title = "count"
-    chart.y_axis.crossAx = 100
-    chart.add_data(data, titles_from_data=True)
-    chart.set_categories(dates)
+        # График 4
+        data = Reference(ws, min_col=8, max_col=9, min_row=1, max_row=dates_count+1)
+        chart = LineChart()
+        chart.title = "Death cases in " + country + " from " + date_from + " to " + date_to
+        chart.style = 12
+        chart.y_axis.title = "count"
+        chart.y_axis.crossAx = 100
+        chart.add_data(data, titles_from_data=True)
+        chart.set_categories(dates)
 
-    # Добавляем График 4 отчет
-    ws.add_chart(chart, "T15")
+        # Добавляем График 4 отчет
+        ws.add_chart(chart, "T15")
 
     timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H.%M.%S")
     report = "reports/" + timestamp + " " + country + ".xlsx"
@@ -165,11 +166,24 @@ if __name__ == '__main__':
             print('Incorrect input. Please, try again.')
             continue
 
+    while True:
+        include_charts = input("Add charts to the report? (y/n) ")
+        if include_charts.lower() == 'y':
+            include_charts = True
+            break
+        elif include_charts.lower() == 'n':
+            include_charts = False
+            break
+        else:
+            print("I can't understand. Try again!")
+            continue
+
     # Выводим сообщение о запрошенном отчёте
     print('-' * 20)
     print(f'Preparing report for country: {country.capitalize()}')
     print('From:', date_from.strftime("%A %d, %B %Y"))
     print('Till:', date_to.strftime("%A %d, %B %Y"))
+    print('Charts included') if include_charts else print("Charts not included")
     print('-' * 20)
 
     try:
@@ -191,6 +205,6 @@ if __name__ == '__main__':
         exit()
 
     # Создаем отчет excel
-    filename = make_report(data, country.capitalize())
+    filename = make_report(data, country.capitalize(), include_charts)
 
     print("Report is generated and saved as: ", filename)

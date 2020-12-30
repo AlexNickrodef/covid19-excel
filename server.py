@@ -46,6 +46,8 @@ def index():
 
         # Получаем страну из формы
         country = request.form['country']
+        include_charts = request.form.getlist('include_charts')
+
         if not country:
             # Если страна не указана - перезагрузить страницу
             flash('You must specify the country.')
@@ -89,7 +91,7 @@ def index():
             return render_template("index.html", country=country,
                                    date_from=date_from, date_to=date_to)
 
-        filename = make_report(data, country.capitalize())
+        filename = make_report(data, country.capitalize(), include_charts)
 
         return send_file(filename, as_attachment=True)
     else:
