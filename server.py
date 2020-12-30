@@ -1,42 +1,7 @@
 from app import app
-from main import prepare, make_report, country_is_in_file
+from utils.utils import *
 import requests
-import datetime
 from flask import render_template, request, send_file, flash
-
-
-def response_code_is_200(code):
-    # Если сервер ответил не кодом 200, вывести сообщение об ошибке
-
-    if code != 200:
-        flash("Oops. Server responded with code:", code)
-    else:
-        return True
-
-
-def check_dates_for_validity(date_from, date_to):
-    # Проверка дат на валидность
-
-    if date_to < date_from:
-        # Дата "От" находится после даты "До"
-        flash('Date "From" can\'t be past date "To".')
-
-    elif date_to.strftime('%Y-%m-%d') > datetime.datetime.today().strftime('%Y-%m-%d'):
-        # Дата "До" находится в будущем
-        flash("I can't predict future yet.")
-
-    else:
-        return True
-
-
-def check_input_country(country):
-    # Проверка страны на валидность
-
-    if not country_is_in_file(country):
-        # Страна не найдена
-        flash("I have no data for this country :(")
-    else:
-        return True
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -44,29 +9,28 @@ def index():
     if request.method == 'POST':
         # POST
 
-        # Получаем страну из формы
+        # Получаем данные из формы
         country = request.form['country']
+        date_from = request.form['date_from']
+        date_to = request.form['date_to']
         include_charts = request.form.getlist('include_charts')
 
-        if not country:
-            # Если страна не указана - перезагрузить страницу
-            flash('You must specify the country.')
-            return render_template("index.html")
+        # Если есть незаполненные строки - перезагрузить страницу
+        if not check_input_for_void(country, date_from, date_to):
+            return render_template('index.html', country=country,
+                                   date_from=date_from, date_to=date_to)
 
         try:
-            # Получаем строки из формы и конвертируем их в даты
-            year, month, day = map(int, request.form['date_from'].split('-'))
-            date_from = datetime.date(year, month, day)
-            year, month, day = map(int, request.form['date_to'].split('-'))
-            date_to = datetime.date(year, month, day)
-
+            # Конвертируем строки из формы в даты
+            date_from = convert_str_to_date(date_from)
+            date_to = convert_str_to_date(date_to)
         except ValueError:
             # Если возникла ошибка при конвертировании - перезагрузить страницу
             flash("There was an error in dates. Try again!")
             return render_template("index.html", country=country)
 
         # Проверяем введенные данные на ошибки
-        if not (check_input_country(country) and check_dates_for_validity(date_from, date_to)):
+        if not (country_is_in_file(country) and check_dates_for_validity(date_from, date_to)):
             # Если есть хотя бы одна ошибка, перезагрузить страницу
             return render_template("index.html", country=country)
 
@@ -91,9 +55,17 @@ def index():
             return render_template("index.html", country=country,
                                    date_from=date_from, date_to=date_to)
 
+        # Оформить отчет
         filename = make_report(data, country.capitalize(), include_charts)
 
-        return send_file(filename, as_attachment=True)
+        # Отправить отчет пользователю
+        try:
+            return send_file(filename, as_attachment=True)
+        except Exception:
+            # При неудачной отправке - перезагрузить страницу
+            flash('An error occurred while sending the report.')
+            return render_template("index.html", country=country,
+                                   date_from=date_from, date_to=date_to)
     else:
         # GET
 
