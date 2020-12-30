@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap DatePicker</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="{{ url_for('static', filename='css/dp-dark.css') }}" rel="stylesheet">
+  <script src="{{ url_for('static', filename='js/datepicker.js') }}"></script>
+
+</head>
+
+<body>
+
+  <form class="box" method="POST">
+
+    <input type="text" id="country" name="country" placeholder="Country"/>
+    <input type="text" id="date_from" name="date_from" placeholder="From:"/>
+    <input type="text" id="date_to" name="date_to" placeholder="To:"/>
+
+    <script>
+    window.addEventListener("load", function(){
+      picker.attach({
+        target: "date_from"
+      });
+      picker.attach({
+        target: "date_to"
+      });
+    });
+    </script>
+
+
+    <input type="submit" value="Submit">
+  </form>
+
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+
+
+@font-face {
+  font-family: Poppins;
+  src: url('../fonts/Poppins-Regular.ttf');
+}
+
+body{
+  margin: 0;
+  padding: 0;
+  background: #191919;
+}
+
+.box{
+  width: 350px;
+  padding: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 25px;
+  transform: translate(-50%,-50%);
+  background: black;
+  text-align: center;
+}
+
+.box h1{
+  color: white;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.box h3{
+  color: white;
+  text-transform: uppercase;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.message{
+  color: #2ecc71;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.box input[type = "text"]{
+  font-family: Poppins, sans-serif;
+  background: none;
+  display: block;
+  margin: 20px auto;
+  text-align: center;
+  border: 2px solid #3498db;
+  padding: 14px 10px;
+  font-size: 16px;
+  width: 200px;
+  outline: none;
+  color: white;
+  border-radius: 24px;
+  transition: 0.25s;
+}
+
+.box input[type = "text"]:focus{
+  width: 280px;
+  border-color: #2ecc71;
+}
+
+.box input[type = "submit"]{
+  font-family: Poppins, sans-serif;
+  background: none;
+  display: block;
+  margin: 20px auto;
+  text-align: center;
+  border: 2px solid #2ecc71;
+  padding: 14px 40px;
+  outline: none;
+  color: white;
+  border-radius: 24px;
+  transition: 0.25s;
+  cursor: pointer;
+}
+
+.box input[type = "submit"]:hover{
+  background: #2ecc71;
+}

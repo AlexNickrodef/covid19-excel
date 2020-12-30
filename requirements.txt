@@ -6,3 +6,4 @@ jdcal==1.4.1
 openpyxl==3.0.5
 requests==2.25.0
 urllib3==1.26.2
+flask==1.1.2
