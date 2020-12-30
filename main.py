@@ -96,7 +96,7 @@ def make_report(data, country):
     ws.add_chart(chart, "T15")
 
     timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H.%M.%S")
-    report = timestamp + " " + country + ".xlsx"
+    report = "reports/" + timestamp + " " + country + ".xlsx"
 
     # Сохраняем отчет
     wb.save(report)
