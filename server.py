@@ -28,12 +28,14 @@ def index():
         except ValueError:
             # Если возникла ошибка при конвертировании - перезагрузить страницу
             flash("There was an error in dates. Try again!")
-            return render_template("index.html", country=country)
+            return render_template("index.html", country=country,
+                                   date_from=date_from, date_to=date_to)
 
         # Проверяем введенные данные на ошибки
         if not (country_is_in_file(country) and check_dates_for_validity(date_from, date_to)):
             # Если есть хотя бы одна ошибка, перезагрузить страницу
-            return render_template("index.html", country=country)
+            return render_template("index.html", country=country,
+                                   date_from=date_from, date_to=date_to)
 
         try:
             # Подставляем данные в запрос
