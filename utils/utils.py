@@ -92,7 +92,7 @@ def make_charts(ws, data, country):
     ws.add_chart(chart, "T15")
 
 
-def make_report(data, country, include_charts) -> str:
+def make_excel_report(data, country, include_charts) -> str:
     """ Создание финального отчета """
 
     # Создаем workbook excel и забираем активный worksheet
@@ -125,6 +125,36 @@ def make_report(data, country, include_charts) -> str:
     wb.save(report)
 
     return report
+
+
+def make_csv_report(data, country) -> str:
+    """ Создание финального отчета """
+
+    timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H.%M.%S")
+    csv_report = open("reports/" + timestamp + " " + country + ".csv", 'w')
+
+    rows = [('Date:', 'today confirmed cases',
+             'new confirmed cases:', 'today active cases:',
+             'new active cases:', 'today recovered cases:',
+             'new recovered cases:', 'today deaths:', 'new deaths:',)]
+
+    for date in data['dates']:
+        statistic = data['dates'][date]['countries'][country]
+        rows.append((date, statistic['today_confirmed'], statistic['today_new_confirmed'],
+                     statistic['today_open_cases'], statistic['today_new_open_cases'],
+                     statistic['today_recovered'], statistic['today_new_recovered'],
+                     statistic['today_deaths'], statistic['today_new_deaths']))
+
+    for row in rows:
+        for element in row:
+            csv_report.write(str(element) + ';')
+        csv_report.write('\n')
+
+    # Сохраняем отчет
+    csv_report.close()
+    filename = "reports/" + timestamp + " " + country + ".csv"
+
+    return filename
 
 
 def check_input_for_void(country, date_from, date_to) -> bool:

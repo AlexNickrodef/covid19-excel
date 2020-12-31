@@ -14,6 +14,7 @@ def index():
         date_from = request.form['date_from']
         date_to = request.form['date_to']
         include_charts = request.form.getlist('include_charts')
+        as_csv = request.form.getlist('as_csv')
 
         # Если есть незаполненные строки - перезагрузить страницу
         if not check_input_for_void(country, date_from, date_to):
@@ -56,7 +57,20 @@ def index():
                                    date_from=date_from, date_to=date_to)
 
         # Оформить отчет
-        filename = make_report(data, country.capitalize(), include_charts)
+
+        # Если запрошен отчет в CSV
+        if as_csv:
+            # Если запрошены графики - перезагрузить страницу
+            if include_charts:
+                flash("I can't include charts in CSV")
+                return render_template("index.html", country=country,
+                                       date_from=date_from, date_to=date_to)
+            else:
+                # Если нет, сформировать отчет
+                filename = make_csv_report(data, country.capitalize())
+        else:
+            # Если запрошен отчет в Excel
+            filename = make_excel_report(data, country.capitalize(), include_charts)
 
         # Отправить отчет пользователю
         try:
