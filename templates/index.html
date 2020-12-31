@@ -32,12 +32,13 @@
     <input type="text" id="date_to" name="date_to" placeholder="To:" value="{{ date_to }}"/>
 
     <div class="checkbox">
-      <input class="custom-checkbox" type="checkbox" id="include_charts" name="include_charts">
+      <input class="custom-checkbox" type="checkbox" id="include_charts"
+             name="include_charts" onclick="uncheck('csv')">
       <label for="include_charts" class="message" style="color: white">Include charts</label>
     </div>
 
     <div class="checkbox">
-      <input class="custom-checkbox" type="checkbox" id="as_csv" name="as_csv">
+      <input class="custom-checkbox" type="checkbox" id="as_csv" name="as_csv" onclick="uncheck('charts')">
       <label for="as_csv" class="message" style="color: white">Import as CSV</label>
     </div>
 
@@ -50,6 +51,15 @@
         target: "date_to"
       });
     });
+
+    function uncheck(click){
+        if (click === "csv") {
+            document.getElementById("as_csv").checked = false;
+        }
+        if (click === "charts") {
+            document.getElementById("include_charts").checked = false;
+        }
+    }
     </script>
 
 
